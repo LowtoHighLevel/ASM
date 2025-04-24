@@ -1,12 +1,24 @@
 CC=zig cc
 CFLAGS=-Iinclude
 
+OUTPUT=main
+ifeq ($(OS),Windows_NT)
+    OUTPUT = target/asm.exe
+endif
+
 SRCS= src/main.c \
+      src/util.c \
+      src/handlers2.c \
+      src/gens2.c \
 
 
 .PHONY: all clean main target
 
-all: clean main target/asm
+all: clean $(OUTPUT)
+
+target/asm.exe: main
+	@cp target/asm target/asm.exe
+	@echo "Created exe file"
 
 main: target target/asm
 
