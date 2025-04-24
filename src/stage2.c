@@ -29,10 +29,7 @@ int stage2(char* in, char* out) {
   int line = 0;
   while (next_token(ptr, buffer)) {
     int ret = 0;
-    if (buffer[strlen(buffer)-1] == ':') {
-      printf("label");
-      ret = 0;
-    }else if (buffer[0] == '#') {
+    if (buffer[0] == '#') {
       skip_line(ptr, buffer);
     } else if (strcmp(buffer, "ld") == 0) {
       ret = handle_ld(ptr, wptr, buffer, line);
