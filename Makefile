@@ -10,6 +10,7 @@ SRCS= src/main.c \
       src/util.c \
       src/handlers2.c \
       src/gens2.c \
+      src/stage2.c \
 
 
 .PHONY: all clean main target
