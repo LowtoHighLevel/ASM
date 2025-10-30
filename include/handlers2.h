@@ -17,4 +17,10 @@ int handle_memory(FILE * ptr, FILE * wptr, char * buffer, int line, unsigned cha
 
 int handle_jmp(FILE * ptr, FILE * wptr, char * buffer, int line, unsigned char cond);
 
+int handle_ext_base_outreg(FILE * ptr, FILE * wptr, unsigned char ext, unsigned char cmd, char * buffer, int line);
+
+int handle_set_flags(FILE * ptr, FILE * wptr, unsigned char val, char * buffer, int line);
+
+int handle_interrupt(FILE * ptr, FILE * wptr, unsigned char val, char * buffer, int line);
+
 #endif

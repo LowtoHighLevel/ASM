@@ -58,3 +58,13 @@ int read_reg(FILE * ptr, char * buffer, int line, unsigned char * reg) {
   *reg = conv.cval[0];
   return 0;
 }
+
+int read_int8(FILE * ptr, char * buffer, int line, unsigned char * val) {
+
+  next_token(ptr, buffer);
+  
+  union int_to_vals conv;
+  conv.ival = atoi(buffer);
+  *val = conv.cval[0];
+  return 0;
+}

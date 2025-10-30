@@ -31,7 +31,7 @@ unsigned int gen_write_mem(unsigned char r1, unsigned char r2) {
 }
 
 unsigned int gen_jmprel(unsigned char condition, short rel) {
-  unsigned int out = 0x80000000;
+  unsigned int out = 0b100 << 29;
   out |= (((unsigned int)condition) << 24);
   union int_to_vals conv;
   conv.ival = out;
@@ -40,8 +40,17 @@ unsigned int gen_jmprel(unsigned char condition, short rel) {
 }
 
 unsigned int gen_jmpreg(unsigned char condition, unsigned char reg) {
-  unsigned int out = 0x90000000;
+  unsigned int out = 0b101 << 29;
   out |= (((unsigned int)condition) << 24);
   out |= ((unsigned int)reg) << 16;
   return out;
 }
+unsigned int gen_ext(unsigned char ext_num, unsigned char cmd, unsigned char b1, unsigned char b2, unsigned char b3) {
+  unsigned int out = (0b110 + ((unsigned int)ext_num)) << 29;
+  out |= ((((unsigned int)cmd) & 0b11111) << 24);
+  out |= (((unsigned int)b1) << 16);
+  out |= (((unsigned int)b2) << 8);
+  out |= (((unsigned int)b3) << 0);
+  return out;
+}
+

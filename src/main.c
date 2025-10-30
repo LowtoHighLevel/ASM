@@ -2,6 +2,14 @@
 #include <stdio.h>
 #include <string.h>
 
+/**
+ * Run method
+ * 
+ * check: state
+ * in: input file name
+ * out: output file name
+ * return: state
+*/
 int run(int check, char* in, char* out) {
   int ret = 0;
   if (check == 0) {
@@ -19,18 +27,28 @@ int run(int check, char* in, char* out) {
   printf("Done!\n");
   return 0;
 }
+
+/**
+ * Main method
+ */
 int main(int argc, char * argv[]) {
 
+  // Print output
   printf("LTHL Assembler\n");
 
+
+  // print usage if needed
   if (argc == 1) {
     printf("Usage: %s [-s2, -all] <file> [out_file]\n", argv[0]);
     return 0;
   }
 
+  // states
   int in_file = 1;
   int check = 0;
   char * out_file = "out.bin";
+  
+  // arguments
   while(argv[in_file][0] == '-') {
     in_file++;
     if (strcmp(argv[1], "-s2") == 0) {
@@ -38,9 +56,11 @@ int main(int argc, char * argv[]) {
     }
   }
 
+  // get output file
   if (in_file + 1 < argc) {
     out_file = argv[in_file+1];
   }
 
+  // run the assembler
   return run(check, argv[in_file], out_file);
  }

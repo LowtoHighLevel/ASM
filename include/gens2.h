@@ -13,6 +13,8 @@ unsigned int gen_jmprel(unsigned char condition, short rel);
 
 unsigned int gen_jmpreg(unsigned char condition, unsigned char reg);
 
+unsigned int gen_ext(unsigned char ext_num, unsigned char cmd, unsigned char b1, unsigned char b2, unsigned char b3);
+
 
 #endif
 

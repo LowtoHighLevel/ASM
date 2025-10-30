@@ -1,5 +1,5 @@
 CC=zig cc
-CFLAGS=-Iinclude
+CFLAGS= -Iinclude $(CEXTS)
 
 OUTPUT=main
 ifeq ($(OS),Windows_NT)
@@ -13,23 +13,40 @@ SRCS= src/main.c \
       src/stage2.c \
 
 
-.PHONY: all clean main target
+.PHONY: all clean main target test interrupt
+
 
 all: clean $(OUTPUT)
+test: CEXTS = -DEXT_INT
+
+
+interrupt: CEXTS = -DEXT_INT
+interrupt: all
 
 target/asm.exe: main
 	@cp target/asm target/asm.exe
 	@echo "Created exe file"
 
-main: target target/asm
+main: target/asm
 
 target:
 	@mkdir -p target
 
-target/asm: $(SRCS)
+target/asm: target $(SRCS)
 	@$(CC) $(CFLAGS) -o $@ $(SRCS)
 	@echo "Compiled: $@ from $(SRCS)"
+
+test: target/asm test.S
+	@./target/asm test.S
+	@if [ $$? -eq 0 ]; then \
+        echo "Test Successful!"; \
+    else \
+        echo "Test Failed!"; \
+        	exit 1; \
+    fi
+	@rm out.bin
+
 clean:
-	@rm -rf target
+	@rm -rf target out.bin
 	@echo "Cleaned all files!"
 

@@ -16,4 +16,6 @@ int write(FILE *wptr, int val);
 
 int read_reg(FILE * ptr, char * buffer, int line, unsigned char * reg);
 
+int read_int8(FILE * ptr, char * buffer, int line, unsigned char * val);
+
 #endif
