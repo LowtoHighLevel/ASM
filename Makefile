@@ -11,6 +11,9 @@ SRCS= src/main.c \
       src/handlers2.c \
       src/gens2.c \
       src/stage2.c \
+	  src/label.c \
+	  src/stage1.c \
+	  src/handlers1.c \
 
 
 .PHONY: all clean main target test interrupt
@@ -44,9 +47,9 @@ test: target/asm test.S
         echo "Test Failed!"; \
         	exit 1; \
     fi
-	@rm out.bin
+	@rm a.out
 
 clean:
-	@rm -rf target out.bin
+	@rm -rf target a.out
 	@echo "Cleaned all files!"
 

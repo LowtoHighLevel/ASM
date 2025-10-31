@@ -6,6 +6,8 @@
 #include <stdlib.h>
 
 
+void read_line(FILE * ptr, char * buffer, int max, int idx);
+
 void skip_line(FILE * ptr, char * buffer);
 
 void skip_space(FILE * ptr, char * buffer);
@@ -17,5 +19,7 @@ int write(FILE *wptr, int val);
 int read_reg(FILE * ptr, char * buffer, int line, unsigned char * reg);
 
 int read_int8(FILE * ptr, char * buffer, int line, unsigned char * val);
+
+int is_number(char c);
 
 #endif

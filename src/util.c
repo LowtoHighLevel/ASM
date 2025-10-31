@@ -10,6 +10,17 @@ void skip_line(FILE * ptr, char * buffer) {
   }
 }
 
+void read_line(FILE * ptr, char * buffer, int max, int idx) {
+  char ch = ' ';
+  int i = idx;
+  while (ch != '\n' && i < max) {
+    ch = fgetc(ptr);
+    buffer[i] = ch;
+    i++;
+  }
+  buffer[i] = 0;
+}
+
 void skip_space(FILE * ptr, char * buffer) {
   char ch = ' ';
   while (ch == ' ' || ch == '\n' || ch == '\t') {
@@ -32,8 +43,9 @@ int next_token(FILE * ptr, char * buffer) {
   return ch != EOF;
 }
 
-
-
+int is_number(char c) {
+  return c >= '0' && c <= '9';
+}
 
 
 int write(FILE *wptr, int val) {
