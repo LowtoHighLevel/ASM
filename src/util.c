@@ -33,7 +33,7 @@ int next_token(FILE * ptr, char * buffer) {
   skip_space(ptr, buffer);
   int i = 0;
   char ch = buffer[0];
-  while (ch != ' ' && ch != '\n' && ch != EOF) {
+  while (ch != ' ' && ch != '\n' && ch != '\t' && ch != EOF) {
     buffer[i] = ch;
     i++;
     ch = fgetc(ptr);
