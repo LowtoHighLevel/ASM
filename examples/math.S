@@ -10,8 +10,14 @@ shift_left:
     write r30 r5
     sub r30 r30 r28
 
-    # set up output and loop
+    # set up output
     mov r1 r2
+
+    # base case
+    add r0 r0 r3
+    jz shr_done
+
+    # set up loop
     mov r5 r3
     ld r4 1
 shl_loop:
@@ -46,8 +52,14 @@ shift_right:
     write r30 r5
     sub r30 r30 r28
 
-    # set up output and loop
+    # set up output
     mov r1 r2
+
+    # base case
+    add r0 r0 r3
+    jz shr_done
+
+    # set up loop
     mov r5 r3
     ld r4 1
 shr_loop:
