@@ -122,3 +122,78 @@ mult_done:
     
     read r30 r4
     ret r26
+
+# Divide
+#
+# divisor: r1
+# dividend: r2
+# value: r3
+# remainder: r4
+div:
+
+    # Store variables
+    write r30 r8
+    sub r30 r30 r28
+
+    write r30 r7
+    sub r30 r30 r28
+
+    write r30 r6
+    sub r30 r30 r28
+
+    write r30 r5
+    sub r30 r30 r28
+
+    # set up loop
+    ld r6 32
+    ld r7 1
+
+    # set up value and remainder
+    mov r3 r1
+    ld r4 0
+
+    # carry storage
+    ld r8 0
+    # clear carry
+    add r0 r0 r0
+div_loop:
+    # rotate everything over to the left
+    ror r8 r8
+    rol r3 r3
+    rol r4 r4
+
+    # Set carry
+    ld r5 1
+    ror r5 r5
+
+    # remainder - dividend
+    sub r5 r4 r2
+    # Copy over data if divisible, otherwise go again
+    jc carry
+    ld r8 0
+    j ignore_result
+carry:
+    ld r8 1
+    mov r4 r5
+ignore_result:
+    # loop or done
+    sub r6 r6 r7
+    jz div_done
+    j div_loop
+div_done:
+    ror r8 r8
+    rol r3 r3
+
+    add r30 r30 r28
+    read r30 r5
+    
+    add r30 r30 r28
+    read r30 r6
+    
+    add r30 r30 r28
+    read r30 r7
+    
+    add r30 r30 r28
+    read r30 r8
+    
+    ret r26
