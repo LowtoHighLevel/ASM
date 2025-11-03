@@ -131,5 +131,89 @@ phd_do_print:
     add r30 r30 r28
     read r30 r1
     ret r26
+
+# Print Decimal
+#
+# r2 - value
+print_dec:
+
+    write r30 r6
+    sub r30 r30 r28
+
+    write r30 r5
+    sub r30 r30 r28
+
+    write r30 r4
+    sub r30 r30 r28
+
+    write r30 r3
+    sub r30 r30 r28
+
+    write r30 r2
+    sub r30 r30 r28
+
+    write r30 r1
+    sub r30 r30 r28
+
+    # Store used registers TODO
+
+    # move r2 into r1 for division
+    mov r1 r2
+    # we are dividing by 10
+    ld r2 10
+
+    # this will track our second loop
+    ld r5 0
+    ld r6 1
+    # Divide loop
+pd_div_loop:
+    # divide and push the remainder to the stack
+    call div
+    write r30 r4
+    sub r30 r30 r28
+
+    # move current value into r1
+    mov r1 r3
+
+    # count number of iterations
+    add r5 r5 r6
+
+    # if value is zero, we are done
+    add r0 r0 r3
+    jz pd_print_loop
+    # Otherwise jump back and loop again
+    j pd_div_loop
+    
+    # This loop will print
+pd_print_loop:
+
+    # Pop last item from the stack and print it
+    add r30 r30 r28
+    read r30 r1
+    call print_hex_digit
+
+    # go through the loop the same number of times as the previous one
+    sub r5 r5 r6
+    jz pd_done
+    j pd_print_loop
+pd_done:
+    add r30 r30 r28
+    read r30 r1
+
+    add r30 r30 r28
+    read r30 r2
+
+    add r30 r30 r28
+    read r30 r3
+
+    add r30 r30 r28
+    read r30 r4
+
+    add r30 r30 r28
+    read r30 r5
+
+    add r30 r30 r28
+    read r30 r6
+    ret r26
         
     
