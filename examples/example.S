@@ -28,10 +28,14 @@ print_hi:
 # Main function
 main:
     ld r2 255
-    call print_hex
-    ld r2 '\n'
-    call print_char
-
+    call print_hex_fmt
+  
+    ld r2 2
+    ld r3 3
+    call mult
+    mov r2 r1
+    call print_hex_fmt
+    
     # Print 'hi' 5 times
     ld r1 5
     ld r5 1
