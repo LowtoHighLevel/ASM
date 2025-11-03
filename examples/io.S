@@ -9,54 +9,68 @@ print_char:
     read r30 r1
     ret r26
 
-# prints a number as hex
+# Prints a number as hex (with 0x before and \n after)
+#
 # r2 - number
-print_hex:
-    
-    # store registers
-    write r30 r1
-    sub r30 r30 r28
-
-    write r30 r2
-    sub r30 r30 r28
-
-    write r30 r3
-    sub r30 r30 r28
-
+print_hex_fmt:
     write r30 r4
-    sub r30 r30 r28
-
-    # temporarily move r2 to print 0x
     mov r4 r2
     ld r2 '0'
     call print_char
     ld r2 'x'
     call print_char
     mov r2 r4
-
-    # print each hex character
-    ld r4 4
-    ld r3 32
-    sub r3 r3 r4
-ph_loop:
-    call shift_right
-    call print_hex_digit
-    sub r3 r3 r4
-    jz ph_done
-    j ph_loop
-ph_done:
-    call print_hex_digit
-
-    # reload variables and return
-    add r30 r30 r28
+    call print_hex
+    ld r2 '\n'
+    call print_char
+    mov r2 r4
     read r30 r4
-    add r30 r30 r28
-    read r30 r3
-    add r30 r30 r28
-    read r30 r2
+    ret r26
+
+# returns the first hex bit that is not 0
+# input: r2
+# amount: r3
+# return: r3
+first_bit_hex:
+    write r30 r4
+    sub r30 r30 r28
+
+    write r30 r1
+    sub r30 r30 r28
+
+    ld r4 15
+fbh_loop:
+    sub r3 r3 r28
+    call shift_right
+    and r0 r1 r4
+    jz fbh_loop
+
+    add r3 r3 r28
+    
     add r30 r30 r28
     read r30 r1
 
+    add r30 r30 r28
+    read r30 r4
+    ret r26
+
+# prints a number as hex
+# r2 - number
+print_hex:
+    write r30 r3
+    ld r3 32
+    call first_bit_hex
+ph_loop:
+    # r28 has a 4 because of method call
+    sub r3 r3 r28
+    call shift_right
+    call print_hex_digit
+    add r0 r0 r3
+    jz ph_done
+    j ph_loop
+
+ph_done:
+    read r30 r3
     ret r26
 
 
