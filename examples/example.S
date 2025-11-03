@@ -1,7 +1,7 @@
 # Initializes the CPU and stack, then jumps to the main entry point
 init:
     # initialize stack
-    ld r30 6140
+    ld r30 12284
     j main
 
 .include ./io.S
