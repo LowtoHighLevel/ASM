@@ -29,6 +29,9 @@ print_hi:
 main:
     ld r2 255
     call print_hex_fmt
+    call print_dec
+    ld r2 '\n'
+    call print_char
   
     ld r2 2
     ld r3 3
