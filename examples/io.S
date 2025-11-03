@@ -91,6 +91,9 @@ print_hex_digit:
     write r30 r4
     sub r30 r30 r28
 
+    write r30 r5
+    sub r30 r30 r28
+
     # mask the digits to the last 4 bits
     ld r2 15
     and r1 r2 r1
@@ -117,6 +120,8 @@ phd_do_print:
     call print_char
 
     # reload old registers and return
+    add r30 r30 r28
+    read r30 r5
     add r30 r30 r28
     read r30 r4
     add r30 r30 r28
