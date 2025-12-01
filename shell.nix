@@ -4,8 +4,7 @@ in
 pkgs.mkShell {
   nativeBuildInputs = with pkgs; [
     git
-    zig
-    gcc
+    clang
     lazygit
     valgrind
     gnumake

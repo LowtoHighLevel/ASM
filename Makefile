@@ -1,4 +1,4 @@
-CC=zig cc
+CC=clang
 CFLAGS= -Iinclude $(CEXTS)
 
 OUTPUT=main
@@ -6,17 +6,12 @@ ifeq ($(OS),Windows_NT)
     OUTPUT = target/asm.exe
 endif
 
-SRCS= src/main.c \
-      src/util.c \
-      src/handlers2.c \
-      src/gens2.c \
-      src/stage2.c \
-	  src/label.c \
-	  src/stage1.c \
-	  src/handlers1.c \
+OUTDIR ?= ./target
 
+C_SOURCES ?= $(wildcard src/*.c)
+C_OUTPUTS ?= $(C_SOURCES:src/%.c=$(OUTDIR)/%.o)
 
-.PHONY: all clean main target test interrupt
+.PHONY: all clean main test interrupt
 
 
 all: clean $(OUTPUT)
@@ -26,18 +21,22 @@ test: CEXTS = -DEXT_INT
 interrupt: CEXTS = -DEXT_INT
 interrupt: all
 
-target/asm.exe: main
-	@cp target/asm target/asm.exe
+$(OUTDIR)/asm.exe: main
+	@cp $(OUTDIR)/asm $(OUTDIR)/asm.exe
 	@echo "Created exe file"
 
-main: target/asm
+main: target $(OUTDIR)/asm
 
 target:
-	@mkdir -p target
+	@mkdir -p $(OUTDIR)
 
-target/asm: target $(SRCS)
-	@$(CC) $(CFLAGS) -o $@ $(SRCS)
-	@echo "Compiled: $@ from $(SRCS)"
+$(OUTDIR)/%.o: src/%.c
+	@$(CC) $(CFLAGS) -o $@ -c $<
+	@echo "Compiled $@ from $<"
+
+$(OUTDIR)/asm: target $(C_OUTPUTS)
+	@$(CC) $(CFLAGS) -o $@ $(C_OUTPUTS)
+	@echo "Compiled: $@ from $(C_OUTPUTS)"
 
 test: target/asm test.S
 	@./target/asm test.S
@@ -45,7 +44,7 @@ test: target/asm test.S
         echo "Test Successful!"; \
     else \
         echo "Test Failed!"; \
-        	exit 1; \
+	exit 1; \
     fi
 	@rm a.out
 
