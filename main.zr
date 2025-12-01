@@ -1,7 +1,7 @@
-#include <stage2.h>
-#include <stage1.h>
-#include <stdio.h>
-#include <string.h>
+#include <stage2.zh>
+#include <stage1.zh>
+#include <stdio.zh>
+#include <string.zh>
 
 /**
  * Run method
@@ -11,8 +11,8 @@
  * out: output file name
  * return: state
 */
-int run(int check, char* in, char* out) {
-  int ret = 0;
+fn run(check: i32, in: *u8, out: *u8) -> i32 {
+  let ret: i32 = 0;
   if (check == 0) {
     printf("Running default build\n");
     ret = stage1(in, "./.compiler_temp_1.S");
@@ -26,7 +26,7 @@ int run(int check, char* in, char* out) {
     ret = stage1(in, out);
   }
 
-  if (ret) {
+  if (ret != 0) {
     return ret;
   }
   
@@ -37,8 +37,7 @@ int run(int check, char* in, char* out) {
 /**
  * Main method
  */
-int main(int argc, char * argv[]) {
-
+fn main(argc: usize, argv: **u8) -> i32 {
   // Print output
   printf("LTHL Assembler\n");
 
@@ -49,11 +48,11 @@ int main(int argc, char * argv[]) {
     return 0;
   }
 
-  // states
-  int in_file = 1;
-  int check = 0;
-  char * out_file = "a.out";
-  
+  let in_file : usize = 1;
+  let check: i32 = 0;
+
+  let out_file : *u8 = "a.out";
+    
   // arguments
   while(argv[in_file][0] == '-') {
     in_file++;
