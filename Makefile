@@ -44,9 +44,9 @@ $(OUTDIR)/%.o: src/%.zr
 	$(ZRC) --emit object $(ZRFLAGS) -o $@ $<
 	@echo "Compiled $@ from $<"
 
-$(OUTDIR)/asm: target $(C_OUTPUTS)
-	@$(CC) $(CFLAGS) -o $@ $(C_OUTPUTS)
-	@echo "Compiled: $@ from $(C_OUTPUTS)"
+$(OUTDIR)/asm: target $(C_OUTPUTS) $(ZR_OUTPUTS)
+	@$(CC) $(CFLAGS) -o $@ $(C_OUTPUTS) $(ZR_OUTPUTS)
+	@echo "Compiled: $@ from $(C_OUTPUTS) $(ZR_OUTPUTS)"
 
 test: target/asm test.S
 	@./target/asm test.S
