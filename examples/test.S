@@ -4,12 +4,17 @@ init:
     ld r30 12284
     j main
 
-data:
-    .db 'H'
-    .include ./io.S
+test:
+	.db 'h'
+	.db 'i'
+    ld r5 4
+    ld r6 2
+
 
 main:
-    ld r2 150
-    call print_dec
-done:
-    ld r30 36000
+	lda r2 test
+	read r2 r7
+	ld r3 1
+	ld r4 255
+
+	ld r30 36000

@@ -37,13 +37,16 @@ int stage2(char* in, char* out) {
   // iterate through each line and handle an instruction
   while (next_token(ptr, buffer)) {
     int ret = 0;
-    
+
+    offset = offset % 4;
     if (buffer[0] != 'd' && offset > 0) {
-      int amt = 4 - offset;
+      offset = 4 - offset;
       char c = 0;
-      for (int i = 0; i < amt; i++)
+      while (offset > 0) {
 	fwrite(&c, sizeof(char), 1, wptr);
-      offset = 0;
+	offset--;
+      }
+      
     }
     
     // Base features
@@ -116,12 +119,12 @@ int stage2(char* in, char* out) {
 
     // Handle invalid tokens
     else {
-      printf("Error: unhandled token: \"%s\" on line: %d\n", buffer, line);
+      printf("Error: unhandled token: \"%s\" on line: %d", buffer, line);
       ret = 1;
     }
 
     
-    offset %= 4;
+    offset = offset % 4;
 
     // Close on error
     if (ret) {
