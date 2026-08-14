@@ -6,13 +6,14 @@ init:
 
 test:
 	.db 'h'
+test1:
 	.db 'i'
     ld r5 4
     ld r6 2
 
 
 main:
-	lda r2 test
+	lda r2 test1
 	read r2 r7
 	ld r3 1
 	ld r4 255

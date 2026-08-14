@@ -46,9 +46,12 @@ int lda_function(FILE * ptr, char * buffer, int line) {
   char next[256];
   next_token(ptr, next);
   next_token(ptr, buffer);
+
   
-  int label = ((*(label_line(get_label(buffer))) - line)) - 4;
-  printf("label: %d", label);
+  int label = get_label(buffer);
+  if (label == -1) return -1;
+  label = ((*(label_line(label)) - line)) - 4;
+  printf("label: %d\n", label);
   if (label > 0x7FFF || label < -0x7FFF) {
     printf("distance to label is out of bounds! will not work for load address!");
     return -1;
@@ -91,9 +94,7 @@ int stage1_inner(char* in, int * line, int * line_label) {
     int ret = 0;
     int len = strlen(buffer);
 
-    if (buffer[1] != 'd' && (*line_label % 4) != 0) {
-      *line_label += 4 - (*line_label % 4);
-    }
+    int check = (buffer[0] != '.' && buffer[1] != 'd' && (*line_label % 4) != 0);
     
     if (buffer[len-1] == ':') {
       add_label(buffer, *line_label);
@@ -113,10 +114,11 @@ int stage1_inner(char* in, int * line, int * line_label) {
     } else if (buffer[0] == '.' && buffer[1] == 'd') {
       int t = 0;
       ret = 0;
-      add_define(ptr, buffer, buffer[2], &t);
-      *line_label += t;
+      int amt = add_define(ptr, buffer, buffer[2], &t);
+      *line_label += t * amt;
+      *line += amt;
       } else {
-      ret = exact(ptr, buffer, *line);
+      ret = exact(ptr, buffer, *line_label);
 
       if (ret == -1) {
         printf("Error: unhandled token: \"%s\" on line: %d\n", buffer, *line);
@@ -129,6 +131,7 @@ int stage1_inner(char* in, int * line, int * line_label) {
       return ret;
     }
     // Keep iterating
+    if (check) *line_label += 4 - (*line_label % 4);
     *line += ret;
     *line_label += ret * 4;
   }
@@ -163,17 +166,18 @@ int stage1(char* in, char* out) {
   }
 
   line = 0;
+
   // start getting ready to write the instructions...
   for (int i = 0; i < num_instructions; i++) {
-    
     int offset = 0;
+
     while (comments[current_comment].line == i && current_comment < num_comments) {
       fprintf(wptr, "%s", comments[current_comment].value);
       current_comment++;
     }
 
     instruction_t * current_instruction = get_instruction(i);
-    offset += current_instruction->offset;
+    offset = current_instruction->offset;
     printf("offset: %d %d %d\n", current_instruction->offset, line, i*4);
     if (strcmp(current_instruction->parts[0], "j") == 0) {
       handle_jmp1(wptr, i, line);
