@@ -12,7 +12,11 @@ void skip_line(FILE * ptr, char * buffer);
 
 void skip_space(FILE * ptr, char * buffer);
 
+void skip_space2(FILE * ptr, char * buffer, int check);
+
 int next_token(FILE * ptr, char * buffer);
+
+int next_token_last(FILE * ptr, char * buffer, char * last);
 
 int write(FILE *wptr, int val);
 

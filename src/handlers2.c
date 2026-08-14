@@ -4,6 +4,44 @@
 #include <convert.h>
 #include <string.h>
 
+
+int handle_define(FILE * ptr, FILE * wptr, char * buffer, int line, int bytes) {
+  
+  char check = 0;
+  next_token(ptr, buffer);
+    // Handle characters
+    if (buffer[0] == '\'') {
+      char c = 0;
+      // Handle spaces
+      if (strlen(buffer) == 1) {
+	c = ' ';
+	next_token(ptr, buffer);
+      }
+      // Handle escape characters
+      else if (buffer[1] == '\\') {
+	if (buffer[2] == 'n') c = '\n';
+	else if (buffer[2] == 't') c = '\t';
+	else if (buffer[2] == '\\') c = '\\';
+	else c = 0;
+      }
+      // Handle regular characters
+      else {
+	c = buffer[1];
+      }
+      printf("db %c", c);
+      fwrite(&c, bytes, 1, wptr);
+    }
+    // otherwise load an integer
+    else {
+      unsigned int imm = atoi(buffer);
+      fwrite(&imm, bytes, 1, wptr);
+      printf("db %d", imm);
+    }
+
+  int b = bytes;
+  return 0;
+}
+
 int handle_ld(FILE * ptr, FILE * wptr, char * buffer, int line) {
   // Load register
   unsigned char reg;

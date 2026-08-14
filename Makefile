@@ -40,7 +40,7 @@ target/asm: target $(SRCS)
 	@echo "Compiled: $@ from $(SRCS)"
 
 test: target/asm test.S
-	@./target/asm test.S
+	@./target/asm -s2 test.S
 	@if [ $$? -eq 0 ]; then \
         echo "Test Successful!"; \
     else \

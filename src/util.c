@@ -22,14 +22,27 @@ void read_line(FILE * ptr, char * buffer, int max, int idx) {
 }
 
 void skip_space(FILE * ptr, char * buffer) {
+  skip_space2(ptr, buffer, 1);
+}
+
+void skip_space2(FILE * ptr, char * buffer, int check) {
   char ch = ' ';
-  while (ch == ' ' || ch == '\n' || ch == '\t') {
+
+  int test = 0;
+  while (test || (ch == ' ' || ch == '\t')) {
     ch = fgetc(ptr);
+    if (check) {
+      test = ch == '\n';
+    }
     buffer[0] = ch;
   }
 }
 
 int next_token(FILE * ptr, char * buffer) {
+  char c = 0;
+  return next_token_last(ptr, buffer, &c);
+}
+int next_token_last(FILE * ptr, char * buffer, char * last) {
   skip_space(ptr, buffer);
   int i = 0;
   char ch = buffer[0];
@@ -38,6 +51,7 @@ int next_token(FILE * ptr, char * buffer) {
     i++;
     ch = fgetc(ptr);
   }
+  *last = buffer[i];
   buffer[i] = 0;
 
   return ch != EOF;
