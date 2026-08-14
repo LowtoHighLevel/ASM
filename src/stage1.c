@@ -16,7 +16,7 @@ int exact_val(FILE * rptr, char * buffer, int args, const char * name) {
 
 const char * exact_names[] = {"ld", "mov", "add", "sub", "and", "or", "xor", "ror", "rol", "write", "read", "ext", "int", "rint", "ldflags", "sflag", "cflag", "j", "jz", "jc", "jv", "jn"};
 int exact_args[] = {2, 2, 3, 3, 3, 3, 3, 2, 2, 2, 2, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
- 
+
 int exact(FILE * rptr, char * buffer, int line) {
   int val = -1;
   int amt = 0;
@@ -87,11 +87,13 @@ int stage1_inner(char* in, int * line) {
     } else if (strcmp(buffer, "ret") == 0) {
       ret = return_function(ptr, buffer);
       printf("ret: %d\n", ret);
+    } else if (buffer[0] == '.' && buffer[1] == 'd') {
+      ret = add_define(ptr, buffer, buffer[2]);
     } else {
       ret = exact(ptr, buffer, *line);
 
       if (ret == -1) {
-        printf("Error: unhandled token: \"%s\" on line: %d", buffer, *line);
+        printf("Error: unhandled token: \"%s\" on line: %d\n", buffer, *line);
       }
     }
 

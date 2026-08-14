@@ -4,7 +4,9 @@ init:
     ld r30 12284
     j main
 
-.include ./io.S
+data:
+    .db 'H'
+    .include ./io.S
 
 main:
     ld r2 150
