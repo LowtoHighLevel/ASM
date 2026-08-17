@@ -101,6 +101,11 @@ int add_define(FILE* ptr, char * buffer, char typ, int * offset) {
     instructions[num_instructions-1].offset = l;
   }
   *offset = l;
+  while ((out * l) % 4 != 0) {
+    add_instruction_raw(2, buf2, "0", 0, 0);
+    instructions[num_instructions-1].offset = l;
+    out++;
+  }
   return out;
 }
 

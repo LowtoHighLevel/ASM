@@ -94,8 +94,8 @@ int stage1_inner(char* in, int * line, int * line_label) {
     int ret = 0;
     int len = strlen(buffer);
 
-    int check = (buffer[0] != '.' && buffer[1] != 'd' && (*line_label % 4) != 0);
-    
+    int check = (buffer[0] != '.' && buffer[1] != 'd' && (*line_label % 4) != 0) && buffer[len-1] != ':';
+    //   printf("token: %s, check: %d\n", buffer, check);
     if (buffer[len-1] == ':') {
       add_label(buffer, *line_label);
     } else if (buffer[0] == '#') {
