@@ -65,27 +65,42 @@ int add_define(FILE* ptr, char * buffer, char typ, int * offset) {
   if (buffer[0] == '\'' && strlen(buffer) == 1) {
     next_token(ptr, buffer);
     add_instruction_raw(2, buf2, "' '", 0, 0);
-    *offset += l;
     instructions[num_instructions-1].offset = l;
   }
   else if (buffer[0] == '"') {
-    out = 0;
     strcpy(buf3, buffer+1);
-    char prev = buf3[len-1];
-    char current = fgetc(ptr);
-    while (!(current == '"' && prev != '\\')) {
-      buf3[len] = current;
-      prev = current;
-      len++;
+    if (!(buffer[len-1] == '"' && buffer[len-2] != '\\')) {
+      printf("current: %c", buf3[len-1]);
+      buf3[len-1] = ' ';
+      char prev = buf3[len-1];
+      char current = fgetc(ptr);
+      while (!(current == '"' && prev != '\\')) {
+	printf("current: %c", current);
+	buf3[len] = current;
+	prev = current;
+	current = fgetc(ptr);
+	len++;
+      }
+      buf3[len] = 0;
+    } else {
+      len--;
+      buf3[--len] = 0;
     }
-    buf3[len] = 0;
-    printf("buf3: %s", buf3);
-    
+
+   char buf4[5];
+   for (int i = 0; i < len; i++) {
+     snprintf(buf4, sizeof(buf4), "'%c'", buf3[i]);
+     add_instruction_raw(2, buf2, buf4, 0, 0);
+     instructions[num_instructions-1].offset = l;
+     out++;
+   }
+    add_instruction_raw(2, buf2, "0", 0, 0);
+    instructions[num_instructions-1].offset = l;
   } else {
     add_instruction_raw(2, buf2, buffer, 0, 0);
-    *offset += l;
     instructions[num_instructions-1].offset = l;
   }
+  *offset = l;
   return out;
 }
 

@@ -178,7 +178,6 @@ int stage1(char* in, char* out) {
 
     instruction_t * current_instruction = get_instruction(i);
     offset = current_instruction->offset;
-    printf("offset: %d %d %d\n", current_instruction->offset, line, i*4);
     if (strcmp(current_instruction->parts[0], "j") == 0) {
       handle_jmp1(wptr, i, line);
     } else if (strcmp(current_instruction->parts[0], "jz") == 0) {
