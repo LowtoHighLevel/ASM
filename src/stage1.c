@@ -16,7 +16,7 @@ int exact_val(FILE * rptr, char * buffer, int args, const char * name) {
 
 const char * exact_names[] = {"ld", "mov", "add", "sub", "and", "or", "xor", "ror", "rol", "write", "read", "ext", "int", "rint", "ldflags", "sflag", "cflag", "j", "jz", "jc", "jv", "jn"};
 int exact_args[] = {2, 2, 3, 3, 3, 3, 3, 2, 2, 2, 2, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1};
- 
+
 int exact(FILE * rptr, char * buffer, int line) {
   int val = -1;
   int amt = 0;
@@ -42,6 +42,26 @@ int call_function(FILE * ptr, char * buffer) {
       return out;
 }
 
+int lda_function(FILE * ptr, char * buffer, int line) {
+  char next[256];
+  next_token(ptr, next);
+  next_token(ptr, buffer);
+
+  
+  int label = get_label(buffer);
+  if (label == -1) return -1;
+  label = ((*(label_line(label)) - line)) - 4;
+  printf("label: %d\n", label);
+  if (label > 0x7FFF || label < -0x7FFF) {
+    printf("distance to label is out of bounds! will not work for load address!");
+    return -1;
+  }
+  snprintf(buffer, sizeof(buffer), "%d", label);
+  int out = add_instruction_raw(3, "ld", next, buffer, 0);
+  out += add_instruction_raw(4, "add", next, next, "r31");
+  return out;
+}
+
 int return_function(FILE * ptr, char * buffer) {
     next_token(ptr, buffer);
     if (strcmp(buffer, "r28") == 0) {
@@ -58,7 +78,7 @@ int return_function(FILE * ptr, char * buffer) {
     return out;
 }
 
-int stage1_inner(char* in, int * line) {
+int stage1_inner(char* in, int * line, int * line_label) {
   // Open input file to read
   FILE * ptr = fopen(in, "r");
   if (ptr == NULL) {
@@ -73,25 +93,35 @@ int stage1_inner(char* in, int * line) {
   while (next_token(ptr, buffer)) {
     int ret = 0;
     int len = strlen(buffer);
+
+    int check = (buffer[0] != '.' && buffer[1] != 'd' && (*line_label % 4) != 0) && buffer[len-1] != ':';
+    //   printf("token: %s, check: %d\n", buffer, check);
     if (buffer[len-1] == ':') {
-      add_label(buffer, *line);
+      add_label(buffer, *line_label);
     } else if (buffer[0] == '#') {
       read_line(ptr, buffer, 256, strlen(buffer));
       add_comment(*line, buffer);
     } else if (strcmp(buffer, ".include") == 0) {
       next_token(ptr, buffer);
-      int val = stage1_inner(buffer, line);
+      int val = stage1_inner(buffer, line, line_label);
       if (val < 0) return val;
     } else if (strcmp(buffer, "call") == 0) {
       ret = call_function(ptr, buffer);
     } else if (strcmp(buffer, "ret") == 0) {
       ret = return_function(ptr, buffer);
-      printf("ret: %d\n", ret);
-    } else {
-      ret = exact(ptr, buffer, *line);
+    } else if (strcmp(buffer, "lda") == 0) {
+      ret = lda_function(ptr, buffer, *line_label);
+    } else if (buffer[0] == '.' && buffer[1] == 'd') {
+      int t = 0;
+      ret = 0;
+      int amt = add_define(ptr, buffer, buffer[2], &t);
+      *line_label += t * amt;
+      *line += amt;
+      } else {
+      ret = exact(ptr, buffer, *line_label);
 
       if (ret == -1) {
-        printf("Error: unhandled token: \"%s\" on line: %d", buffer, *line);
+        printf("Error: unhandled token: \"%s\" on line: %d\n", buffer, *line);
       }
     }
 
@@ -101,7 +131,9 @@ int stage1_inner(char* in, int * line) {
       return ret;
     }
     // Keep iterating
+    if (check) *line_label += 4 - (*line_label % 4);
     *line += ret;
+    *line_label += ret * 4;
   }
 
   fclose(ptr);
@@ -112,7 +144,8 @@ int stage1(char* in, char* out) {
   reset_comments();
 
   int line = 0;
-  int ret = stage1_inner(in ,&line);
+  int line_label = 0;
+  int ret = stage1_inner(in, &line, &line_label);
 
   if (ret < 0) {
     return ret;
@@ -132,28 +165,43 @@ int stage1(char* in, char* out) {
     return 1;
   }
 
+  line = 0;
+
   // start getting ready to write the instructions...
   for (int i = 0; i < num_instructions; i++) {
+    int offset = 0;
+
     while (comments[current_comment].line == i && current_comment < num_comments) {
       fprintf(wptr, "%s", comments[current_comment].value);
       current_comment++;
     }
 
     instruction_t * current_instruction = get_instruction(i);
-    
+    offset = current_instruction->offset;
     if (strcmp(current_instruction->parts[0], "j") == 0) {
-      handle_jmp1(wptr, i);
+      handle_jmp1(wptr, i, line);
     } else if (strcmp(current_instruction->parts[0], "jz") == 0) {
-      handle_jmp1(wptr, i);
+      handle_jmp1(wptr, i, line);
     } else if (strcmp(current_instruction->parts[0], "jc") == 0) {
-      handle_jmp1(wptr, i);
+      handle_jmp1(wptr, i, line);
     } else if (strcmp(current_instruction->parts[0], "jv") == 0) {
-      handle_jmp1(wptr, i);
+      handle_jmp1(wptr, i, line);
     } else if (strcmp(current_instruction->parts[0], "jn") == 0) {
-      handle_jmp1(wptr, i);
+      handle_jmp1(wptr, i, line);
     } else {
       handle_instruction_exact(wptr, i);
     }
+
+    line += offset;
+    
+    if (i+1 < num_instructions) {
+      instruction_t * next_instruction = get_instruction(i+1);
+      if (next_instruction->offset == 4 && (line % 4) > 0) {
+	line -= line % 4;
+	line += 4;
+      }
+    }
+    
     
   }
   fclose(wptr);

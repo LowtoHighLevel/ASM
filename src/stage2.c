@@ -33,10 +33,22 @@ int stage2(char* in, char* out) {
   char buffer[256];
   int line = 0;
 
+  int offset = 0;
   // iterate through each line and handle an instruction
   while (next_token(ptr, buffer)) {
     int ret = 0;
 
+    offset = offset % 4;
+    if (buffer[0] != 'd' && offset > 0) {
+      offset = 4 - offset;
+      char c = 0;
+      while (offset > 0) {
+	fwrite(&c, sizeof(char), 1, wptr);
+	offset--;
+      }
+      
+    }
+    
     // Base features
     if (buffer[0] == '#') {
       skip_line(ptr, buffer); // ignore comments
@@ -74,6 +86,15 @@ int stage2(char* in, char* out) {
       ret = handle_jmp(ptr, wptr, buffer, line, 4);
     } else if (strcmp(buffer, "ext") == 0) {
       ret = handle_ext_base_outreg(ptr, wptr, 0, 0b00000, buffer, line);
+    } else if (strcmp(buffer, "db") == 0) {
+      ret = handle_define(ptr, wptr, buffer, line, 1);
+      offset += 1;
+    } else if (strcmp(buffer, "ds") == 0) {
+      ret = handle_define(ptr, wptr, buffer, line, 2);
+      offset += 2;
+    } else if (strcmp(buffer, "dw") == 0) {
+      ret = handle_define(ptr, wptr, buffer, line, 4);
+      offset += 4;
     }
 
     // Extensions
@@ -102,19 +123,20 @@ int stage2(char* in, char* out) {
       ret = 1;
     }
 
+    
+    offset = offset % 4;
+
     // Close on error
     if (ret) {
       fclose(wptr);
       fclose(ptr);
       return ret;
     }
-    
-
     // Keep iterating
     line++;
     printf("\n");
   }
-
+  
   // Close file and return
   fclose(wptr);
   fclose(ptr);

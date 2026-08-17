@@ -23,4 +23,6 @@ int handle_set_flags(FILE * ptr, FILE * wptr, unsigned char val, char * buffer, 
 
 int handle_interrupt(FILE * ptr, FILE * wptr, unsigned char val, char * buffer, int line);
 
+int handle_define(FILE * ptr, FILE * wptr, char * buffer, int line, int bytes);
+
 #endif

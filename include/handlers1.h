@@ -7,13 +7,14 @@
 #include <util.h>
 
 typedef struct instruction {
-    char parts[8][256];
-    int num_parts;
+  char parts[8][256];
+  int num_parts;
+  int offset;
 } instruction_t;
 
 typedef struct comment {
-    char value[256];
-    int line;
+  char value[256];
+  int line;
 } comment_t;
 
 
@@ -22,6 +23,8 @@ void reset_instructions();
 int add_instruction(FILE* ptr, char * buffer, int args);
 
 int add_instruction_raw(int args, char * arg1, char * arg2, char * arg3, char * arg4);
+
+int add_define(FILE* ptr, char * buffer, char typ, int * offset);
 
 instruction_t * get_instruction(int idx);
 
@@ -37,5 +40,5 @@ int comment_size();
 
 int handle_instruction_exact(FILE * wptr, int i);
 
-int handle_jmp1(FILE * wptr, int i);
+int handle_jmp1(FILE * wptr, int i, int line);
 #endif

@@ -22,18 +22,91 @@ int add_instruction(FILE* ptr, char * buffer, int args) {
         }
     }
     instructions[num_instructions].num_parts = args + 1;
+    instructions[num_instructions].offset = 4;
     num_instructions++;
     return 1;
 };
-
+  
 int add_instruction_raw(int args, char * arg1, char * arg2, char * arg3, char * arg4) {
     char * data[4] = {arg1, arg2, arg3, arg4};
     for (int i = 0; i < args; i++) {
         strcpy(instructions[num_instructions].parts[i], data[i]);
     }
     instructions[num_instructions].num_parts = args;
+    instructions[num_instructions].offset = 4;
     num_instructions++;
     return 1;
+}
+
+
+int add_define(FILE* ptr, char * buffer, char typ, int * offset) {
+  int out = 1;
+  char buf2[5];
+  sprintf(buf2,"d%c", typ);
+  strcpy(instructions[num_instructions].parts[0], buf2);
+
+  int l = 0;
+  switch (typ) {
+  case 'b':
+    l = 1;
+    break;
+  case 's':
+    l = 2;
+    break;
+  default:
+    l = 4;
+    break;
+  }
+  
+  char buf3[256];
+
+  next_token(ptr, buffer);
+  int len = strlen(buffer);
+  if (buffer[0] == '\'' && strlen(buffer) == 1) {
+    next_token(ptr, buffer);
+    add_instruction_raw(2, buf2, "' '", 0, 0);
+    instructions[num_instructions-1].offset = l;
+  }
+  else if (buffer[0] == '"') {
+    strcpy(buf3, buffer+1);
+    if (!(buffer[len-1] == '"' && buffer[len-2] != '\\')) {
+      printf("current: %c", buf3[len-1]);
+      buf3[len-1] = ' ';
+      char prev = buf3[len-1];
+      char current = fgetc(ptr);
+      while (!(current == '"' && prev != '\\')) {
+	printf("current: %c", current);
+	buf3[len] = current;
+	prev = current;
+	current = fgetc(ptr);
+	len++;
+      }
+      buf3[len] = 0;
+    } else {
+      len--;
+      buf3[--len] = 0;
+    }
+
+   char buf4[5];
+   for (int i = 0; i < len; i++) {
+     snprintf(buf4, sizeof(buf4), "'%c'", buf3[i]);
+     add_instruction_raw(2, buf2, buf4, 0, 0);
+     instructions[num_instructions-1].offset = l;
+     out++;
+   }
+    add_instruction_raw(2, buf2, "0", 0, 0);
+    instructions[num_instructions-1].offset = l;
+  } else {
+    add_instruction_raw(2, buf2, buffer, 0, 0);
+    instructions[num_instructions-1].offset = l;
+  }
+  *offset = l;
+  while ((out * l) % 4 != 0) {
+    add_instruction_raw(2, buf2, "0", 0, 0);
+    instructions[num_instructions-1].offset = l;
+    out++;
+  }
+  return out;
 }
 
 instruction_t * get_instruction(int idx) {
@@ -83,7 +156,7 @@ int handle_instruction_exact(FILE * wptr, int i) {
     return 0;
 }
 
-int handle_jmp1(FILE * wptr, int i) {
+int handle_jmp1(FILE * wptr, int i, int line) {
     fprintf(wptr, "%s", instructions[i].parts[0]);
     
     char * data = instructions[i].parts[1];
@@ -94,7 +167,7 @@ int handle_jmp1(FILE * wptr, int i) {
     else {
         int label = get_label(data);
         if (label == -1) return -1;
-        int distance = *(label_line(label)) - i;
+        int distance = ((*(label_line(label))) - line) / 4;
         if (distance > 0x7FFF || distance < -0x7FFF) {
             printf("distance to label is out of bounds! will not work for relative jump!");
             return -1;
@@ -103,3 +176,4 @@ int handle_jmp1(FILE * wptr, int i) {
     }
     return 0;
 }
+

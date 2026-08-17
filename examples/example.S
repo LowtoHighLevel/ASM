@@ -6,24 +6,10 @@ init:
 
 .include ./io.S
 
-# prints hi
-print_hi:
-    write r30 r2
-    
-    ld r2 'H'
-    call print_char
-
-    ld r2 'I'
-    call print_char
-
-    ld r2 '!'
-    call print_char
-
-    ld r2 '\n'
-    call print_char
-
-    read r30 r2
-    ret r26
+hi_msg:
+	.db "HI!"
+	.db '\n'
+	.db 0
 
 # Main function
 main:
@@ -40,13 +26,15 @@ main:
     call print_hex_fmt
     
     # Print 'hi' 5 times
-    ld r1 5
+    ld r6 5
     ld r5 1
 loop1:
-
-    call print_hi
+    lda r1 hi_msg
+    call print_str
+    add r1 r1 r5
+    call print_str
     # continue the loop until end
-    sub r1 r1 r5
+    sub r6 r6 r5
     jz done
     j loop1
 

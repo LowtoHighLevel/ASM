@@ -1,4 +1,4 @@
-MARG=
+MARG?=
 
 .PHONY: all clean run test
 
