@@ -9,6 +9,38 @@ print_char:
     read r30 r1
     ret r26
 
+# Prints a string
+# r1 - string address
+print_str:
+	write r30 r4
+	sub r30 r30 r28
+
+	write r30 r3
+	sub r30 r30 r28
+	
+	write r30 r2
+	sub r30 r30 r28
+	
+	ld r3 1
+	ld r4 255
+print_str_loop:	
+	read r1 r2
+	and r2 r4 r2
+	jz print_str_done
+	call print_char
+	add r1 r1 r3
+	j print_str_loop
+print_str_done:
+
+	add r30 r30 r28
+	read r30 r2
+
+	add r30 r30 r28
+	read r30 r3
+
+	add r30 r30 r28
+	read r30 r4
+	ret r26
 # Prints a number as hex (with 0x before and \n after)
 #
 # r2 - number

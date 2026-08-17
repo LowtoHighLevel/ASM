@@ -4,18 +4,12 @@ init:
     ld r30 12284
     j main
 
-test:
-	.db 'h'
-test1:
-	.db 'i'
-    ld r5 4
-    ld r6 2
+test_str:
+	.db "Hello!"
 
+.include ./io.S
 
 main:
-	lda r2 test1
-	read r2 r7
-	ld r3 1
-	ld r4 255
-
+	lda r1 test_str
+	call print_str
 	ld r30 36000
