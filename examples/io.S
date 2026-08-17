@@ -3,12 +3,34 @@
 # Prints a character
 # r2 - character
 print_char:
-    write r30 r1
-    ld r1 16384
-    write r1 r2
-    read r30 r1
-    ret r26
+	write r30 r1
+	sub r30 r30 r28
 
+	write r30 r3
+	sub r30 r30 r28
+
+	ld r3 255
+	and r2 r2 r3
+	
+	ld r1 16384
+	write r1 r2
+
+	add r30 r30 r28
+	read r30 r3
+	
+	add r30 r30 r28
+	read r30 r1
+
+	ret r26
+
+# reads a character
+# r1 - character
+read_char:
+	write r30 r2
+	ld r2 16384
+	read r2 r1
+	read r30 r2
+	ret r26
 # Prints a string
 # r1 - string address
 print_str:
@@ -25,7 +47,7 @@ print_str:
 	ld r4 255
 print_str_loop:	
 	read r1 r2
-	and r2 r4 r2
+	and r2 r2 r4
 	jz print_str_done
 	call print_char
 	add r1 r1 r3
